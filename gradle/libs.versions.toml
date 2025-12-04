@@ -1,0 +1,53 @@
+[versions]
+androidx-lifecycle = "2.9.5"
+composeMultiplatform = "1.9.1"
+junit = "4.13.2"
+kotlin = "2.2.20"
+ktor = "3.3.1"
+logback = "1.5.20"
+serialization = "1.9.0"
+datetime = "0.7.1"
+arrow = "2.2.0"
+google-api-client = "2.4.0"
+jwt = "4.5.0"
+koin = "4.1.1"
+bcrypt = "0.4"
+
+
+[libraries]
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+junit = { module = "junit:junit", version.ref = "junit" }
+androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+
+ktor-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-contentNegotiation-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
+arrow-stack = { module = "io.arrow-kt:arrow-stack", version.ref = "arrow" }
+arrow-core = { module = "io.arrow-kt:arrow-core" }
+google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "google-api-client" }
+jwt = { module = "com.auth0:java-jwt", version.ref = "jwt" }
+
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-ktor = { module = "io.insert-koin:koin-ktor" }
+
+bcrypt = { module = "org.mindrot:jbcrypt", version.ref = "bcrypt" }
+
+[plugins]
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
