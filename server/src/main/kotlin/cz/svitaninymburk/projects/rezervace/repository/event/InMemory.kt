@@ -31,6 +31,10 @@ class InMemoryEventInstanceRepository : EventInstanceRepository {
         return instances[id]
     }
 
+    override suspend fun findByIds(eventIds: List<String>): List<EventInstance> {
+        return instances.filterKeys { it in eventIds }.values.toList()
+    }
+
     override suspend fun save(instance: EventInstance): EventInstance {
         val id = instance.id.ifBlank { UUID.randomUUID().toString() }
         val newInstance = instance.copy(id = id)

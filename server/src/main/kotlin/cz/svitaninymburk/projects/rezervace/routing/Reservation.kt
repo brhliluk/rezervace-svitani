@@ -3,6 +3,7 @@ package cz.svitaninymburk.projects.rezervace.routing
 import cz.svitaninymburk.projects.rezervace.error.ReservationError
 import cz.svitaninymburk.projects.rezervace.error.localizedMessage
 import cz.svitaninymburk.projects.rezervace.reservation.CreateReservationRequest
+import cz.svitaninymburk.projects.rezervace.reservation.GetReservationsRequest
 import cz.svitaninymburk.projects.rezervace.reservation.ReservationService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -11,12 +12,11 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 
-// TODO: require user
-fun Route.reservationRoutes(reservationService: ReservationService) {
-    //TODO: get(/reservations)
 
+fun Route.reservationRoutes(reservationService: ReservationService) {
     post("/reservations") {
         val req = call.receive<CreateReservationRequest>()
 
@@ -42,5 +42,22 @@ fun Route.reservationRoutes(reservationService: ReservationService) {
                 ReservationError.EventNotFound -> call.respond(HttpStatusCode.NotFound, error.localizedMessage)
             } }
             .onRight { call.respond(HttpStatusCode.OK, "Rezervace zrušena") }
+    }
+}
+
+fun Route.authenticatedReservationRoutes(reservationService: ReservationService) {
+    get("/reservations") {
+        val userId = call.principal<JWTPrincipal>()?.payload?.id
+        if (userId == null) {
+            call.respond(HttpStatusCode.Unauthorized, "Nepřihlášený uživatel")
+            return@get
+        }
+        val req = call.receive<GetReservationsRequest>()
+
+        reservationService.getReservations(req.userId)
+            .onLeft { error -> when (error) {
+                ReservationError.FailedToGetAllReservations -> call.respond(HttpStatusCode.InternalServerError, error.localizedMessage)
+            } }
+            .onRight { reservations -> call.respond(HttpStatusCode.OK, reservations) }
     }
 }

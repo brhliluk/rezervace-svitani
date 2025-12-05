@@ -6,4 +6,5 @@ interface ReservationRepository {
     suspend fun save(reservation: Reservation): Reservation
     suspend fun findById(id: String): Reservation?
     suspend fun countSeats(eventId: String): Int
+    suspend fun getAll(userId: String): List<Reservation>
 }

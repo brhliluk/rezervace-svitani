@@ -75,4 +75,21 @@ class ReservationService(
 
         true
     }
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun getReservations(userId: String): Either<ReservationError.GetAll, List<Reservation>> = either {
+        val reservations = reservationRepo.getAll(userId)
+        if (reservations.isEmpty()) return@either emptyList()
+
+        val eventIds = reservations.map { it.eventInstanceId }.distinct()
+
+        val events = eventRepo.findByIds(eventIds).associateBy { it.id }
+
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        reservations.filter { reservation ->
+            val event = events[reservation.eventInstanceId]
+            event != null && event.endDateTime > now && !event.isCancelled
+        }
+    }
 }

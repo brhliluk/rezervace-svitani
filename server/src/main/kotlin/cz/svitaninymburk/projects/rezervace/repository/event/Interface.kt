@@ -12,6 +12,7 @@ interface EventRepository {
 
 interface EventInstanceRepository {
     suspend fun findById(id: String): EventInstance?
+    suspend fun findByIds(eventIds: List<String>): List<EventInstance>
 
     suspend fun save(instance: EventInstance): EventInstance
 

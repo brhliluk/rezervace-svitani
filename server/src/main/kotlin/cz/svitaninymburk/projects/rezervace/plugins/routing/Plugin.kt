@@ -3,6 +3,7 @@ package cz.svitaninymburk.projects.rezervace.plugins.routing
 import cz.svitaninymburk.projects.rezervace.auth.AuthService
 import cz.svitaninymburk.projects.rezervace.reservation.ReservationService
 import cz.svitaninymburk.projects.rezervace.routing.authRoutes
+import cz.svitaninymburk.projects.rezervace.routing.authenticatedReservationRoutes
 import cz.svitaninymburk.projects.rezervace.routing.reservationRoutes
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -30,6 +31,7 @@ fun Application.configureRouting() {
 
                 call.respond(mapOf("id" to userId, "email" to email))
             }
+            authenticatedReservationRoutes(reservationService)
         }
 
         authenticate("auth-jwt", optional = true) {

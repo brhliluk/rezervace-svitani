@@ -5,6 +5,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.ExperimentalTime
 
+
 class InMemoryReservationRepository : ReservationRepository {
 
     private val reservations = ConcurrentHashMap<String, Reservation>()
@@ -25,5 +26,9 @@ class InMemoryReservationRepository : ReservationRepository {
             // Počítáme jen aktivní rezervace (ne zrušené)
             .filter { it.status != Reservation.Status.CANCELLED && it.status != Reservation.Status.REJECTED }
             .sumOf { it.seatCount }
+    }
+
+    override suspend fun getAll(userId: String): List<Reservation> {
+        return reservations.values.filter { it.userId == userId }
     }
 }

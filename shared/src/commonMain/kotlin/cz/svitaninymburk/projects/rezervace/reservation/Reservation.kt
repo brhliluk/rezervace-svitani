@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+
 @Serializable
 data class Reservation @OptIn(ExperimentalTime::class) constructor(
     val id: String,
@@ -13,6 +14,7 @@ data class Reservation @OptIn(ExperimentalTime::class) constructor(
     val contactName: String,
     val contactEmail: String,
     val contactPhone: String? = null,
+    val userId: String? = null,
 
     val seatCount: Int = 1,
     val totalPrice: Double,
@@ -44,4 +46,9 @@ data class CreateReservationRequest(
     val userId: String? = null,
 
     val paymentType: PaymentInfo.Type,
+)
+
+@Serializable
+data class GetReservationsRequest(
+    val userId: String,
 )
