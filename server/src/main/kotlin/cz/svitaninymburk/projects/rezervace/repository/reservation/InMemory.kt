@@ -1,18 +1,16 @@
 package cz.svitaninymburk.projects.rezervace.repository.reservation
 
 import cz.svitaninymburk.projects.rezervace.reservation.Reservation
-import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.ExperimentalTime
+import kotlin.uuid.Uuid
 
 
 class InMemoryReservationRepository : ReservationRepository {
 
     private val reservations = ConcurrentHashMap<String, Reservation>()
 
-    @OptIn(ExperimentalTime::class)
     override suspend fun save(reservation: Reservation): Reservation {
-        val id = reservation.id.ifBlank { UUID.randomUUID().toString() }
+        val id = reservation.id.ifBlank { Uuid.random().toString() }
         val newRes = reservation.copy(id = id)
         reservations[id] = newRes
         return newRes

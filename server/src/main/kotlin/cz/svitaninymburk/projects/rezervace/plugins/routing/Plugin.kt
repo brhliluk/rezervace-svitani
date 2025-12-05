@@ -1,7 +1,7 @@
 package cz.svitaninymburk.projects.rezervace.plugins.routing
 
 import cz.svitaninymburk.projects.rezervace.auth.AuthService
-import cz.svitaninymburk.projects.rezervace.reservation.ReservationService
+import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import cz.svitaninymburk.projects.rezervace.routing.authRoutes
 import cz.svitaninymburk.projects.rezervace.routing.authenticatedReservationRoutes
 import cz.svitaninymburk.projects.rezervace.routing.reservationRoutes

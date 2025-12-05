@@ -6,7 +6,7 @@ import kotlin.time.Instant
 
 
 @Serializable
-data class Reservation @OptIn(ExperimentalTime::class) constructor(
+data class Reservation(
     val id: String,
     val eventInstanceId: String,
     val registeredUserId: String? = null,

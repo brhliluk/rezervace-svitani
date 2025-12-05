@@ -19,7 +19,7 @@ class JwtTokenService(
     // Token platí např. 30 dní
     private val expirationTime = 30.days
 
-    @OptIn(ExperimentalTime::class)
+    
     fun generateToken(user: User): String {
         return JWT.create()
             .withAudience(audience)

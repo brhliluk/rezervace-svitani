@@ -4,7 +4,7 @@ import cz.svitaninymburk.projects.rezervace.error.ReservationError
 import cz.svitaninymburk.projects.rezervace.error.localizedMessage
 import cz.svitaninymburk.projects.rezervace.reservation.CreateReservationRequest
 import cz.svitaninymburk.projects.rezervace.reservation.GetReservationsRequest
-import cz.svitaninymburk.projects.rezervace.reservation.ReservationService
+import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal

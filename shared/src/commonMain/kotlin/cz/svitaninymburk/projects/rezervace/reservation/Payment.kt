@@ -1,12 +1,11 @@
 package cz.svitaninymburk.projects.rezervace.reservation
 
 import kotlinx.serialization.Serializable
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 
 @Serializable
-data class PaymentInfo @OptIn(ExperimentalTime::class) constructor(
+data class PaymentInfo(
     val reservationId: String,
     val amount: Double,
     val currency: String = "CZK",

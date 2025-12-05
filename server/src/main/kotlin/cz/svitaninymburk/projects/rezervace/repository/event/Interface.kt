@@ -4,17 +4,23 @@ import cz.svitaninymburk.projects.rezervace.event.EventDefinition
 import cz.svitaninymburk.projects.rezervace.event.EventInstance
 import kotlinx.datetime.LocalDateTime
 
-interface EventRepository {
+
+interface EventDefinitionRepository {
     suspend fun findById(id: String): EventDefinition?
     suspend fun findAll(): List<EventDefinition>
     suspend fun create(event: EventDefinition): EventDefinition
+    suspend fun update(event: EventDefinition): EventDefinition
+    suspend fun delete(id: String): Boolean
 }
 
 interface EventInstanceRepository {
     suspend fun findById(id: String): EventInstance?
     suspend fun findByIds(eventIds: List<String>): List<EventInstance>
 
-    suspend fun save(instance: EventInstance): EventInstance
+    suspend fun create(instance: EventInstance): EventInstance
+    suspend fun update(instance: EventInstance): EventInstance
+    suspend fun delete(id: String): Boolean
+    suspend fun deleteAllByDefinitionId(definitionId: String)
 
     suspend fun findByDateRange(from: LocalDateTime, to: LocalDateTime): List<EventInstance>
 

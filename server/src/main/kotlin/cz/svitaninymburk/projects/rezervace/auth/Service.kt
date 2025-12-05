@@ -28,7 +28,7 @@ class AuthService(
         if (user == null) {
             user = userRepo.create(
                 User.Google(
-                    id = UUID.randomUUID().toString(),
+                    id = Uuid.random().toString(),
                     email = googleUser.email,
                     fullName = googleUser.name,
                     googleSub = googleUser.googleSub,
@@ -56,7 +56,7 @@ class AuthService(
 
         val newUser = userRepo.create(
             User.Email(
-                id = UUID.randomUUID().toString(),
+                id = Uuid.random().toString(),
                 email = request.email,
                 fullName = request.fullName,
                 role = User.Role.USER,

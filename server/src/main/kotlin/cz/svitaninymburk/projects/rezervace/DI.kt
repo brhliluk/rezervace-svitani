@@ -6,14 +6,14 @@ import cz.svitaninymburk.projects.rezervace.auth.GoogleAuthService
 import cz.svitaninymburk.projects.rezervace.auth.HashingService
 import cz.svitaninymburk.projects.rezervace.auth.JwtTokenService
 import cz.svitaninymburk.projects.rezervace.repository.event.EventInstanceRepository
-import cz.svitaninymburk.projects.rezervace.repository.event.EventRepository
+import cz.svitaninymburk.projects.rezervace.repository.event.EventDefinitionRepository
 import cz.svitaninymburk.projects.rezervace.repository.event.InMemoryEventInstanceRepository
-import cz.svitaninymburk.projects.rezervace.repository.event.InMemoryEventRepository
+import cz.svitaninymburk.projects.rezervace.repository.event.InMemoryEventDefinitionRepository
 import cz.svitaninymburk.projects.rezervace.repository.reservation.InMemoryReservationRepository
 import cz.svitaninymburk.projects.rezervace.repository.reservation.ReservationRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.InMemoryUserRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
-import cz.svitaninymburk.projects.rezervace.reservation.ReservationService
+import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import org.koin.dsl.module
 
 val appModule = module {
@@ -33,7 +33,7 @@ val appModule = module {
     single<HashingService> { BCryptHashingService() }
 
     single<UserRepository> { InMemoryUserRepository() }
-    single<EventRepository> { InMemoryEventRepository() }
+    single<EventDefinitionRepository> { InMemoryEventDefinitionRepository() }
     single<EventInstanceRepository> { InMemoryEventInstanceRepository() }
     single<ReservationRepository> { InMemoryReservationRepository() }
 
