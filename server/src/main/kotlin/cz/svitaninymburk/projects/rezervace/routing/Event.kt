@@ -16,16 +16,15 @@ import io.ktor.server.routing.post
 
 
 fun Route.eventRoutes(eventService: EventService) {
-    // TODO: Route scoped plugin to check for admin
 
-    post("/eventDefinition") {
+    post("/definition") {
         val req = call.receive<CreateEventDefinitionRequest>()
 
         eventService.createEventDefinition(req)
             .onRight { call.respond(HttpStatusCode.Created, "Úspěšně vytvořeno") }
     }
 
-    post("/eventDefinition/{id}") {
+    post("/definition/{id}") {
         val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest, "chybějící ID")
         val req = call.receive<EventDefinition>()
         if (id != req.id) return@post call.respond(HttpStatusCode.BadRequest, "Nesouhlasející ID")
@@ -37,14 +36,14 @@ fun Route.eventRoutes(eventService: EventService) {
             .onRight { call.respond(HttpStatusCode.OK, "Úspěšně aktualizováno") }
     }
 
-    post("/eventDefinition/{id}") {
+    post("/definition/{id}") {
         val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest, "chybějící ID")
 
         eventService.deleteEventDefinition(id)
             .onRight { call.respond(HttpStatusCode.OK, "Úspěšně smazáno") }
     }
 
-    post("/event") {
+    post("/instance") {
         val req = call.receive<CreateEventInstanceRequest>()
 
         eventService.createEventInstance(req)
@@ -54,7 +53,7 @@ fun Route.eventRoutes(eventService: EventService) {
             .onRight { call.respond(HttpStatusCode.Created, "Úspěšně vytvořeno") }
     }
 
-    post("/event/{id}") {
+    post("/instance/{id}") {
         val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest, "chybějící ID")
         val req = call.receive<EventInstance>()
         if (id != req.id) return@post call.respond(HttpStatusCode.BadRequest, "Nesouhlasející ID")
@@ -66,7 +65,7 @@ fun Route.eventRoutes(eventService: EventService) {
             .onRight { call.respond(HttpStatusCode.OK, "Úspěšně aktualizováno") }
     }
 
-    delete("/event/{id}") {
+    delete("/instance/{id}") {
         val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "chybějící ID")
         eventService.deleteEventInstance(id)
             .onRight { call.respond(HttpStatusCode.OK, "Úspěšně smazáno") }
