@@ -1,6 +1,7 @@
 package cz.svitaninymburk.projects.rezervace.routing
 
 import cz.svitaninymburk.projects.rezervace.error.ReservationError
+import cz.svitaninymburk.projects.rezervace.error.localizedMessage
 import cz.svitaninymburk.projects.rezervace.reservation.CreateReservationRequest
 import cz.svitaninymburk.projects.rezervace.reservation.ReservationService
 import io.ktor.http.HttpStatusCode
@@ -27,19 +28,18 @@ fun Route.reservationRoutes(reservationService: ReservationService) {
                     ReservationError.EventAlreadyFinished -> HttpStatusCode.BadRequest
                     ReservationError.EventCancelled -> HttpStatusCode.NotAcceptable
                 }
-                call.respond(status, error.toString())
+                call.respond(status, error.localizedMessage)
             }
             .onRight { reservation -> call.respond(HttpStatusCode.Created, reservation) }
     }
 
     delete("/reservations/{id}") {
-        val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "ID chybějící")
+        val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "chybějící ID")
 
         reservationService.cancelReservation(id, call.principal<JWTPrincipal>()?.payload?.id)
             .onLeft { error -> when (error) {
-                ReservationError.EventAlreadyFinished -> call.respond(HttpStatusCode.BadRequest, error.toString())
-                ReservationError.EventNotFound -> call.respond(HttpStatusCode.NotFound, error.toString())
-                else -> call.respond(HttpStatusCode.BadRequest, error.toString())
+                ReservationError.EventAlreadyFinished -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
+                ReservationError.EventNotFound -> call.respond(HttpStatusCode.NotFound, error.localizedMessage)
             } }
             .onRight { call.respond(HttpStatusCode.OK, "Rezervace zrušena") }
     }

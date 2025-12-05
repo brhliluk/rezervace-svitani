@@ -26,8 +26,18 @@ val AuthError.localizedMessage: String get() = when (this) {
 
 // TODO: Localized messages, separate by action
 sealed interface ReservationError : AppError {
-    data object EventNotFound : ReservationError
-    data object EventCancelled : ReservationError
-    data object CapacityExceeded : ReservationError
-    data object EventAlreadyFinished : ReservationError
+    sealed interface CreateReservation : ReservationError
+    sealed interface CancelReservation : ReservationError
+
+    data object EventNotFound : CreateReservation, CancelReservation
+    data object EventAlreadyFinished : CreateReservation, CancelReservation
+    data object EventCancelled : CreateReservation
+    data object CapacityExceeded : CreateReservation
+}
+
+val ReservationError.localizedMessage: String get() = when (this) {
+    ReservationError.EventNotFound -> "Událost nebyla nalezena"
+    ReservationError.CapacityExceeded -> "Kapacita události překročena"
+    ReservationError.EventAlreadyFinished -> "Událost již skončila"
+    ReservationError.EventCancelled -> "Událost byla zrušena"
 }

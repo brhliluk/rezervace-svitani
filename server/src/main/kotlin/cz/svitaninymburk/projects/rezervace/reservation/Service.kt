@@ -1,14 +1,12 @@
 package cz.svitaninymburk.projects.rezervace.reservation
 
 import arrow.core.Either
-import arrow.core.raise.context.ensure
 import arrow.core.raise.context.ensureNotNull
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import cz.svitaninymburk.projects.rezervace.error.ReservationError
 import cz.svitaninymburk.projects.rezervace.repository.event.EventInstanceRepository
 import cz.svitaninymburk.projects.rezervace.repository.reservation.ReservationRepository
-import io.ktor.client.request.request
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -23,7 +21,7 @@ class ReservationService(
     suspend fun createReservation(
         request: CreateReservationRequest,
         userId: String?
-    ): Either<ReservationError, Reservation> = either {
+    ): Either<ReservationError.CreateReservation, Reservation> = either {
 
         val instance = ensureNotNull(eventRepo.findById(request.eventInstanceId)) { ReservationError.EventNotFound }
 
@@ -63,7 +61,7 @@ class ReservationService(
     suspend fun cancelReservation(
         reservationId: String,
         userId: String?,
-    ): Either<ReservationError, Boolean> = either {
+    ): Either<ReservationError.CancelReservation, Boolean> = either {
         val reservation = ensureNotNull(reservationRepo.findById(reservationId)) { ReservationError.EventNotFound }
 
         ensure(Clock.System.now() < reservation.createdAt) { ReservationError.EventAlreadyFinished }
