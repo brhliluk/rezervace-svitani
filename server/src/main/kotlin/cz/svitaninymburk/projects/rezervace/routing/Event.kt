@@ -6,6 +6,7 @@ import cz.svitaninymburk.projects.rezervace.event.CreateEventDefinitionRequest
 import cz.svitaninymburk.projects.rezervace.event.CreateEventInstanceRequest
 import cz.svitaninymburk.projects.rezervace.event.EventDefinition
 import cz.svitaninymburk.projects.rezervace.event.EventInstance
+import cz.svitaninymburk.projects.rezervace.plugins.auth.AdminAuthorization
 import cz.svitaninymburk.projects.rezervace.service.EventService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -13,9 +14,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 
 
-fun Route.eventRoutes(eventService: EventService) {
+fun Route.eventRoutes(eventService: EventService) = route("/event") {
+
+    install(AdminAuthorization)
 
     post("/definition") {
         val req = call.receive<CreateEventDefinitionRequest>()

@@ -12,7 +12,6 @@ import cz.svitaninymburk.projects.rezervace.reservation.Reservation
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 
 class ReservationService(

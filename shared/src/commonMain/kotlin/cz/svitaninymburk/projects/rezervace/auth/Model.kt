@@ -3,6 +3,7 @@ package cz.svitaninymburk.projects.rezervace.auth
 import cz.svitaninymburk.projects.rezervace.user.User
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class LoginRequest(
     val email: String,
@@ -33,6 +34,6 @@ data class UserDto(
 fun User.toDto() = UserDto(
     id = this.id,
     email = this.email,
-    fullName = this.fullName,
+    fullName = this.name + " " + this.surname,
     role = this.role,
 )

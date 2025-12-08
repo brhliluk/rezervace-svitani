@@ -7,8 +7,9 @@ import arrow.core.raise.ensureNotNull
 import cz.svitaninymburk.projects.rezervace.error.AuthError
 import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
 import cz.svitaninymburk.projects.rezervace.user.User
-import java.util.UUID
 import kotlin.reflect.KClass
+import kotlin.uuid.Uuid
+
 
 class AuthService(
     private val userRepo: UserRepository,
@@ -30,7 +31,7 @@ class AuthService(
                 User.Google(
                     id = Uuid.random().toString(),
                     email = googleUser.email,
-                    fullName = googleUser.name,
+                    name = googleUser.name,
                     googleSub = googleUser.googleSub,
                     role = User.Role.USER,
                 )
@@ -41,7 +42,6 @@ class AuthService(
             }
         }
 
-        // 5. Vygenerování našeho Session Tokenu
         val accessToken = tokenService.generateToken(user)
 
         AuthResponse(accessToken, user.toDto())
@@ -58,7 +58,7 @@ class AuthService(
             User.Email(
                 id = Uuid.random().toString(),
                 email = request.email,
-                fullName = request.fullName,
+                name = request.fullName,
                 role = User.Role.USER,
                 passwordHash = hash,
             )

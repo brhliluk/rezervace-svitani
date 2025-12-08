@@ -21,6 +21,12 @@ class InMemoryUserRepository : UserRepository {
         return user
     }
 
+    override suspend fun update(userId: String, user: User): User {
+        users[userId] = user
+        return user
+    }
+
+
     override suspend fun linkGoogleAccount(userId: String, googleSub: String): User.Google {
         val user = users[userId] ?: throw IllegalStateException("User not found inside repo logic")
 

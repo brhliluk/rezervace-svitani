@@ -1,13 +1,15 @@
 package cz.svitaninymburk.projects.rezervace.plugins.routing
 
 import cz.svitaninymburk.projects.rezervace.auth.AuthService
-import cz.svitaninymburk.projects.rezervace.plugins.auth.AdminAuthorization
+import cz.svitaninymburk.projects.rezervace.routing.adminRoutes
 import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import cz.svitaninymburk.projects.rezervace.routing.authRoutes
 import cz.svitaninymburk.projects.rezervace.routing.authenticatedReservationRoutes
 import cz.svitaninymburk.projects.rezervace.routing.eventRoutes
 import cz.svitaninymburk.projects.rezervace.routing.reservationRoutes
+import cz.svitaninymburk.projects.rezervace.routing.userRoutes
 import cz.svitaninymburk.projects.rezervace.service.EventService
+import cz.svitaninymburk.projects.rezervace.service.UserService
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -20,6 +22,7 @@ fun Application.configureRouting() {
     val authService by inject<AuthService>()
     val reservationService by inject<ReservationService>()
     val eventService by inject<EventService>()
+    val userService by inject<UserService>()
 
 
     routing {
@@ -38,10 +41,10 @@ fun Application.configureRouting() {
             }
             authenticatedReservationRoutes(reservationService)
 
-            route("/event") {
-                install(AdminAuthorization)
-                eventRoutes(eventService)
-            }
+            eventRoutes(eventService)
+            adminRoutes(userService)
+
+            userRoutes(userService)
         }
 
         authenticate("auth-jwt", optional = true) {
