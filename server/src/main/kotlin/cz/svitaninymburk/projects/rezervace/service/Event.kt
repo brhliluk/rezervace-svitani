@@ -66,12 +66,12 @@ class EventService(
     }
 
     suspend fun updateEventInstance(instance: EventInstance): Either<EventError.UpdateEventInstance, Unit> = either {
-        ensureNotNull(eventInstanceRepository.findById(instance.id)) { EventError.EventInstanceNotFound(instance.id) }
+        ensureNotNull(eventInstanceRepository.get(instance.id)) { EventError.EventInstanceNotFound(instance.id) }
         eventInstanceRepository.update(instance)
     }
 
     suspend fun deleteEventInstance(id: String): Either<EventError.DeleteEventInstance, Boolean> = either {
-        ensureNotNull(eventInstanceRepository.findById(id)) { EventError.EventInstanceNotFound(id) }
+        ensureNotNull(eventInstanceRepository.get(id)) { EventError.EventInstanceNotFound(id) }
         eventInstanceRepository.delete(id)
     }
 }

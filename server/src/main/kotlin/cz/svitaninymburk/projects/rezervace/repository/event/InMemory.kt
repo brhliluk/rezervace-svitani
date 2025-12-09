@@ -40,11 +40,11 @@ class InMemoryEventInstanceRepository : EventInstanceRepository {
 
     private val instances = ConcurrentHashMap<String, EventInstance>()
 
-    override suspend fun findById(id: String): EventInstance? {
+    override suspend fun get(id: String): EventInstance? {
         return instances[id]
     }
 
-    override suspend fun findByIds(eventIds: List<String>): List<EventInstance> {
+    override suspend fun getAll(eventIds: List<String>): List<EventInstance> {
         return instances.filterKeys { it in eventIds }.values.toList()
     }
 

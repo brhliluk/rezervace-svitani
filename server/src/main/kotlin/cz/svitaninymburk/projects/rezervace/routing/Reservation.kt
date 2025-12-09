@@ -36,10 +36,12 @@ fun Route.reservationRoutes(reservationService: ReservationService) {
     delete("/reservations/{id}") {
         val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "chybějící ID")
 
-        reservationService.cancelReservation(id, call.principal<JWTPrincipal>()?.payload?.id)
+        reservationService.cancelReservation(id)
             .onLeft { error -> when (error) {
-                ReservationError.EventAlreadyFinished -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
-                ReservationError.EventNotFound -> call.respond(HttpStatusCode.NotFound, error.localizedMessage)
+                is ReservationError.EventAlreadyFinished -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
+                is ReservationError.EventNotFound -> call.respond(HttpStatusCode.NotFound, error.localizedMessage)
+                // TODO: error/success reason
+                is ReservationError.FailedToSendCancellationEmail -> call.respond(HttpStatusCode.OK, "Rezervace zrušena, ale odeslání emailu se nezdařilo")
             } }
             .onRight { call.respond(HttpStatusCode.OK, "Rezervace zrušena") }
     }

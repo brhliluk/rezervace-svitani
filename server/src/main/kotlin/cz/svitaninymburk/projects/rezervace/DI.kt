@@ -13,6 +13,9 @@ import cz.svitaninymburk.projects.rezervace.repository.reservation.InMemoryReser
 import cz.svitaninymburk.projects.rezervace.repository.reservation.ReservationRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.InMemoryUserRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
+import cz.svitaninymburk.projects.rezervace.service.EventService
+import cz.svitaninymburk.projects.rezervace.service.GmailEmailService
+import cz.svitaninymburk.projects.rezervace.service.QrCodeService
 import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import org.koin.dsl.module
 
@@ -38,5 +41,8 @@ val appModule = module {
     single<ReservationRepository> { InMemoryReservationRepository() }
 
     single { AuthService(get(), get(), get(), get()) }
-    single { ReservationService(get(), get()) }
+    single { EventService(get(), get()) }
+    single { GmailEmailService(get(), get(), get()) }
+    single { QrCodeService(accountNumber = System.getenv("BANK_ACCOUNT_NUMBER") ?: "123456-123456789/0100") }
+    single { ReservationService(get(), get(), get(), get()) }
 }

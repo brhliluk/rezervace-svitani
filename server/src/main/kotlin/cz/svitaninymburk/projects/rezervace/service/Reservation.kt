@@ -17,6 +17,8 @@ import kotlin.time.Clock
 class ReservationService(
     private val eventRepo: EventInstanceRepository,
     private val reservationRepo: ReservationRepository,
+    private val emailService: EmailService,
+    private val qrCodeService: QrCodeService,
 ) {
     
     suspend fun createReservation(
@@ -24,7 +26,7 @@ class ReservationService(
         userId: String?
     ): Either<ReservationError.CreateReservation, Reservation> = either {
 
-        val instance = ensureNotNull(eventRepo.findById(request.eventInstanceId)) { ReservationError.EventNotFound }
+        val instance = ensureNotNull(eventRepo.get(request.eventInstanceId)) { ReservationError.EventNotFound }
 
         ensure(!instance.isCancelled) { ReservationError.EventCancelled }
         ensure(instance.startDateTime > Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())) { ReservationError.EventAlreadyFinished }
@@ -46,7 +48,7 @@ class ReservationService(
                 contactEmail = request.contactEmail,
                 contactPhone = request.contactPhone,
                 paymentType = request.paymentType,
-                totalPrice = instance.price * request.seatCount, // Cena z instance!
+                totalPrice = instance.price * request.seatCount,
                 status = Reservation.Status.PENDING_PAYMENT,
                 createdAt = Clock.System.now(),
                 id = ""
@@ -55,13 +57,19 @@ class ReservationService(
 
         eventRepo.incrementOccupiedSpots(instance.id, request.seatCount)
 
+        emailService.sendReservationConfirmation(
+            reservation.contactEmail,
+            reservation,
+            qrCodeService.accountNumber,
+            qrCodeService.generateQrPaymentImage(reservation)
+        )
+
         reservation
     }
 
     
     suspend fun cancelReservation(
         reservationId: String,
-        userId: String?,
     ): Either<ReservationError.CancelReservation, Boolean> = either {
         val reservation = ensureNotNull(reservationRepo.findById(reservationId)) { ReservationError.EventNotFound }
 
@@ -72,8 +80,8 @@ class ReservationService(
 
         eventRepo.decrementOccupiedSpots(reservation.eventInstanceId, reservation.seatCount)
 
-        // TODO: notify user
-
+        emailService.sendCancellationNotice(cancelledReservation.contactEmail, reservationId)
+            .mapLeft { ReservationError.FailedToSendCancellationEmail(it) }
         true
     }
 
@@ -84,7 +92,7 @@ class ReservationService(
 
         val eventIds = reservations.map { it.eventInstanceId }.distinct()
 
-        val events = eventRepo.findByIds(eventIds).associateBy { it.id }
+        val events = eventRepo.getAll(eventIds).associateBy { it.id }
 
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 

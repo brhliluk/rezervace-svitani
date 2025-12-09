@@ -45,6 +45,10 @@ dependencies {
 
     implementation(libs.bcrypt)
 
+    implementation(libs.mail)
+    implementation(libs.kotlinx.html)
+    implementation(libs.qrCode)
+
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
 }

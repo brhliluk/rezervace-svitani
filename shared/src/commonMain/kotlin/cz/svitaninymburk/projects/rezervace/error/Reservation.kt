@@ -11,12 +11,14 @@ sealed interface ReservationError : AppError {
     data object EventCancelled : CreateReservation
     data object CapacityExceeded : CreateReservation
     data object FailedToGetAllReservations : GetAll
+    data class FailedToSendCancellationEmail(val cause: EmailError.SendCancellation) : CancelReservation
 }
 
 val ReservationError.localizedMessage: String get() = when (this) {
-    ReservationError.EventNotFound -> "Událost nebyla nalezena"
-    ReservationError.CapacityExceeded -> "Kapacita události překročena"
-    ReservationError.EventAlreadyFinished -> "Událost již skončila"
-    ReservationError.EventCancelled -> "Událost byla zrušena"
-    ReservationError.FailedToGetAllReservations -> "Nelze získat seznam rezervací"
+    is ReservationError.EventNotFound -> "Událost nebyla nalezena"
+    is ReservationError.CapacityExceeded -> "Kapacita události překročena"
+    is ReservationError.EventAlreadyFinished -> "Událost již skončila"
+    is ReservationError.EventCancelled -> "Událost byla zrušena"
+    is ReservationError.FailedToGetAllReservations -> "Nelze získat seznam rezervací"
+    is ReservationError.FailedToSendCancellationEmail -> "Nepodařilo se odeslat email o zrušení rezervace: ${cause.localizedMessage}"
 }

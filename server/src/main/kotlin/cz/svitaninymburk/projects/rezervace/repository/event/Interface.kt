@@ -14,8 +14,8 @@ interface EventDefinitionRepository {
 }
 
 interface EventInstanceRepository {
-    suspend fun findById(id: String): EventInstance?
-    suspend fun findByIds(eventIds: List<String>): List<EventInstance>
+    suspend fun get(id: String): EventInstance?
+    suspend fun getAll(eventIds: List<String>): List<EventInstance>
 
     suspend fun create(instance: EventInstance): EventInstance
     suspend fun update(instance: EventInstance): EventInstance

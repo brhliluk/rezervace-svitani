@@ -1,7 +1,6 @@
 package cz.svitaninymburk.projects.rezervace.reservation
 
 import kotlinx.serialization.Serializable
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 
@@ -28,10 +27,10 @@ data class Reservation(
 ) {
     @Serializable
     enum class Status {
-        PENDING_PAYMENT, // Čeká na platbu
-        CONFIRMED,       // Zaplaceno / Schváleno
-        CANCELLED,       // Zrušeno
-        REJECTED         // Zamítnuto adminem (nebo nezaplaceno v limitu)
+        PENDING_PAYMENT,
+        CONFIRMED,
+        CANCELLED,
+        REJECTED,
     }
 }
 
