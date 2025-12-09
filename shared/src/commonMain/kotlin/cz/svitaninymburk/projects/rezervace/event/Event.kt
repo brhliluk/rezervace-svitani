@@ -48,6 +48,7 @@ data class CreateEventDefinitionRequest(
     val defaultDuration: Duration,
     val recurrenceType: RecurrenceType = RecurrenceType.NONE,
     val recurrenceEndDate: Instant? = null,
+    val customFields: List<CustomFieldDefinition> = emptyList(),
 )
 
 @Serializable
@@ -59,4 +60,5 @@ data class CreateEventInstanceRequest(
     val duration: Duration? = null,
     val price: Double? = null,
     val capacity: Int? = null,
+    val customFields: List<CustomFieldDefinition> = emptyList(),
 )

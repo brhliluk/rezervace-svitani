@@ -1,5 +1,6 @@
 package cz.svitaninymburk.projects.rezervace.reservation
 
+import cz.svitaninymburk.projects.rezervace.event.CustomFieldValue
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
@@ -20,6 +21,8 @@ data class Reservation(
 
     val status: Status,
     val createdAt: Instant,
+
+    val customValues: List<CustomFieldValue>,
 
     val paymentType: PaymentInfo.Type,
     val variableSymbol: String? = null, // VS pro párování platby
