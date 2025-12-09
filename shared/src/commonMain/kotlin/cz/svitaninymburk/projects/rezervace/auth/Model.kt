@@ -11,15 +11,22 @@ data class LoginRequest(
 )
 
 @Serializable
+data class RefreshTokenRequest(
+    val refreshToken: String
+)
+
+@Serializable
 data class RegisterRequest(
     val email: String,
     val password: String,
-    val fullName: String
+    val name: String,
+    val surname: String,
 )
 
 @Serializable
 data class AuthResponse(
     val accessToken: String,
+    val refreshToken: String,
     val user: UserDto,
 )
 

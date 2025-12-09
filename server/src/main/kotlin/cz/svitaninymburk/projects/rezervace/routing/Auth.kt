@@ -1,8 +1,9 @@
 package cz.svitaninymburk.projects.rezervace.routing
 
-import cz.svitaninymburk.projects.rezervace.auth.AuthService
+import cz.svitaninymburk.projects.rezervace.service.AuthService
 import cz.svitaninymburk.projects.rezervace.auth.GoogleLoginRequest
 import cz.svitaninymburk.projects.rezervace.auth.LoginRequest
+import cz.svitaninymburk.projects.rezervace.auth.RefreshTokenRequest
 import cz.svitaninymburk.projects.rezervace.auth.RegisterRequest
 import cz.svitaninymburk.projects.rezervace.error.AuthError
 import cz.svitaninymburk.projects.rezervace.error.localizedMessage
@@ -43,5 +44,13 @@ fun Route.authRoutes(authService: AuthService) {
                 is AuthError.LoggedInWithAnotherProvider -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
             } }
             .onRight { response -> call.respond(HttpStatusCode.OK, response) }
+    }
+
+    post("/auth/refresh") {
+        val request = call.receive<RefreshTokenRequest>()
+
+        authService.refreshToken(request.refreshToken)
+            .onLeft { call.respond(HttpStatusCode.Unauthorized) }
+            .onRight { newAccessToken -> call.respond(HttpStatusCode.OK, mapOf("accessToken" to newAccessToken)) }
     }
 }

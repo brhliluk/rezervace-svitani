@@ -5,8 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm
 import cz.svitaninymburk.projects.rezervace.user.User
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
-import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
+import kotlin.uuid.Uuid
+
 
 class JwtTokenService(
     private val secret: String, // V produkci načítat z ENV proměnných!
@@ -30,6 +31,8 @@ class JwtTokenService(
             .withExpiresAt((Clock.System.now() + expirationTime).toJavaInstant())
             .sign(algorithm)
     }
+
+    fun generateRefreshToken() = Uuid.random().toString()
 
     companion object {
         data class JwtConfig(

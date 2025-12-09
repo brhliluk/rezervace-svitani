@@ -8,6 +8,7 @@ import java.util.Collections
 data class GoogleUser(
     val email: String,
     val name: String,
+    val surname: String,
     val googleSub: String // Unikátní ID
 )
 
@@ -26,6 +27,7 @@ class GoogleAuthService(
             GoogleUser(
                 email = payload.email,
                 name = payload["name"] as String,
+                surname = payload["family_name"] as String,
                 googleSub = payload.subject
             )
         } catch (e: Exception) {

@@ -1,18 +1,29 @@
-package cz.svitaninymburk.projects.rezervace.auth
+package cz.svitaninymburk.projects.rezervace.service
 
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
+import cz.svitaninymburk.projects.rezervace.auth.AuthResponse
+import cz.svitaninymburk.projects.rezervace.auth.GoogleAuthService
+import cz.svitaninymburk.projects.rezervace.auth.HashingService
+import cz.svitaninymburk.projects.rezervace.auth.JwtTokenService
+import cz.svitaninymburk.projects.rezervace.auth.LoginRequest
+import cz.svitaninymburk.projects.rezervace.auth.RegisterRequest
+import cz.svitaninymburk.projects.rezervace.auth.toDto
 import cz.svitaninymburk.projects.rezervace.error.AuthError
+import cz.svitaninymburk.projects.rezervace.repository.auth.RefreshTokenRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
 import cz.svitaninymburk.projects.rezervace.user.User
 import kotlin.reflect.KClass
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 
 class AuthService(
-    private val userRepo: UserRepository,
+    private val userRepository: UserRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val refreshTokenService: RefreshTokenService,
     private val googleAuth: GoogleAuthService,
     private val tokenService: JwtTokenService,
     private val hashingService: HashingService,
@@ -24,54 +35,58 @@ class AuthService(
             AuthError.InvalidGoogleToken
         }
 
-        var user = userRepo.findByEmail(googleUser.email)
+        var user = userRepository.findByEmail(googleUser.email)
 
         if (user == null) {
-            user = userRepo.create(
+            user = userRepository.create(
                 User.Google(
                     id = Uuid.random().toString(),
                     email = googleUser.email,
                     name = googleUser.name,
+                    surname = googleUser.surname,
                     googleSub = googleUser.googleSub,
                     role = User.Role.USER,
                 )
             )
         } else {
             if (user is User.Email) {
-                user = userRepo.linkGoogleAccount(user.id, googleUser.googleSub)
+                user = userRepository.linkGoogleAccount(user.id, googleUser.googleSub)
             }
         }
 
         val accessToken = tokenService.generateToken(user)
+        val refreshToken = refreshTokenService.getToken(user.id)
 
-        AuthResponse(accessToken, user.toDto())
+        AuthResponse(accessToken, refreshToken, user.toDto())
     }
 
     suspend fun register(request: RegisterRequest): Either<AuthError.Register, AuthResponse> = either {
 
-        val existingUser = userRepo.findByEmail(request.email)
+        val existingUser = userRepository.findByEmail(request.email)
         ensure(existingUser == null) { AuthError.UserAlreadyExists }
 
         val hash = hashingService.generateSaltedHash(request.password)
 
-        val newUser = userRepo.create(
+        val newUser = userRepository.create(
             User.Email(
                 id = Uuid.random().toString(),
                 email = request.email,
-                name = request.fullName,
+                name = request.name,
+                surname = request.surname,
                 role = User.Role.USER,
                 passwordHash = hash,
             )
         )
 
         val token = tokenService.generateToken(newUser)
+        val refreshToken = refreshTokenService.getToken(newUser.id)
 
-        AuthResponse(token, newUser.toDto())
+        AuthResponse(token, refreshToken, newUser.toDto())
     }
 
     suspend fun login(request: LoginRequest): Either<AuthError.LoginWithEmail, AuthResponse> = either {
 
-        val user = userRepo.findByEmail(request.email)
+        val user = userRepository.findByEmail(request.email)
 
         ensureNotNull(user) { AuthError.InvalidCredentials }
 
@@ -82,7 +97,22 @@ class AuthService(
         ensure(isValid) { AuthError.InvalidCredentials }
 
         val token = tokenService.generateToken(user)
+        val refreshToken = refreshTokenService.getToken(user.id)
 
-        AuthResponse(token, user.toDto())
+        AuthResponse(token, refreshToken, user.toDto())
+    }
+
+    suspend fun refreshToken(token: String): Either<AuthError.RefreshToken, String> = either {
+        val storedToken = ensureNotNull(refreshTokenRepository.findByToken(token)) { AuthError.InvalidToken }
+
+        if (storedToken.expiresAt < Clock.System.now()) {
+            refreshTokenRepository.deleteByToken(token)
+            raise(AuthError.TokenExpired)
+        }
+
+        val user = userRepository.findById(storedToken.userId)
+        ensureNotNull(user) { AuthError.UserNotFound }
+
+        tokenService.generateToken(user)
     }
 }

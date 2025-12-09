@@ -1,10 +1,12 @@
 package cz.svitaninymburk.projects.rezervace
 
-import cz.svitaninymburk.projects.rezervace.auth.AuthService
+import cz.svitaninymburk.projects.rezervace.service.AuthService
 import cz.svitaninymburk.projects.rezervace.auth.BCryptHashingService
 import cz.svitaninymburk.projects.rezervace.auth.GoogleAuthService
 import cz.svitaninymburk.projects.rezervace.auth.HashingService
 import cz.svitaninymburk.projects.rezervace.auth.JwtTokenService
+import cz.svitaninymburk.projects.rezervace.repository.auth.InMemoryRefreshTokenRepository
+import cz.svitaninymburk.projects.rezervace.repository.auth.RefreshTokenRepository
 import cz.svitaninymburk.projects.rezervace.repository.event.EventInstanceRepository
 import cz.svitaninymburk.projects.rezervace.repository.event.EventDefinitionRepository
 import cz.svitaninymburk.projects.rezervace.repository.event.InMemoryEventInstanceRepository
@@ -16,6 +18,7 @@ import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
 import cz.svitaninymburk.projects.rezervace.service.EventService
 import cz.svitaninymburk.projects.rezervace.service.GmailEmailService
 import cz.svitaninymburk.projects.rezervace.service.QrCodeService
+import cz.svitaninymburk.projects.rezervace.service.RefreshTokenService
 import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import org.koin.dsl.module
 
@@ -39,8 +42,10 @@ val appModule = module {
     single<EventDefinitionRepository> { InMemoryEventDefinitionRepository() }
     single<EventInstanceRepository> { InMemoryEventInstanceRepository() }
     single<ReservationRepository> { InMemoryReservationRepository() }
+    single<RefreshTokenRepository> { InMemoryRefreshTokenRepository() }
 
-    single { AuthService(get(), get(), get(), get()) }
+    single { AuthService(get(), get(), get(),  get(), get(), get()) }
+    single { RefreshTokenService(get(), get()) }
     single { EventService(get(), get()) }
     single { GmailEmailService(get(), get(), get()) }
     single { QrCodeService(accountNumber = System.getenv("BANK_ACCOUNT_NUMBER") ?: "123456-123456789/0100") }
