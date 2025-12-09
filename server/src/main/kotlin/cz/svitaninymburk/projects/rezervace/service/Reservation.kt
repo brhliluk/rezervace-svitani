@@ -12,6 +12,7 @@ import cz.svitaninymburk.projects.rezervace.reservation.Reservation
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.uuid.Uuid
 
 
 class ReservationService(
@@ -51,7 +52,7 @@ class ReservationService(
                 totalPrice = instance.price * request.seatCount,
                 status = Reservation.Status.PENDING_PAYMENT,
                 createdAt = Clock.System.now(),
-                id = ""
+                id = Uuid.random().toString()
             )
         )
 
