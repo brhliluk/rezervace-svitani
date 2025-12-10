@@ -30,7 +30,6 @@ dependencies {
     implementation(libs.ktor.contentNegotiation.json)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
-    implementation(libs.ktor.server.sse)
 
     implementation(platform(libs.arrow.stack))
     implementation(libs.arrow.core)

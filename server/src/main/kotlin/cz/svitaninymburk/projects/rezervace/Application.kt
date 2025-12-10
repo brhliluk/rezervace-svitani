@@ -8,7 +8,6 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.server.sse.SSE
 import org.koin.ktor.plugin.Koin
 
 
@@ -21,8 +20,6 @@ fun Application.module() {
     install(Koin) {
         modules(appModule)
     }
-
-    install(SSE)
 
     configureSerialization()
     configureSecurity()
