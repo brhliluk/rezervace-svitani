@@ -31,6 +31,7 @@ ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.re
 ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-server-sse = { module = "io.ktor:ktor-server-sse", version.ref = "ktor" }
 
 ktor-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-contentNegotiation-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
