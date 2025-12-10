@@ -18,6 +18,7 @@ data class Reservation(
 
     val seatCount: Int = 1,
     val totalPrice: Double,
+    val paidAmount: Double = 0.0,
 
     val status: Status,
     val createdAt: Instant,
@@ -28,6 +29,7 @@ data class Reservation(
     val variableSymbol: String? = null, // VS pro párování platby
     val paymentPairingToken: String? = null // Interní ID pro bankovní API
 ) {
+    val unpaidAmount: Double get() = totalPrice - paidAmount
     @Serializable
     enum class Status {
         PENDING_PAYMENT,
@@ -48,6 +50,7 @@ data class CreateReservationRequest(
     val userId: String? = null,
 
     val paymentType: PaymentInfo.Type,
+    val customValues: List<CustomFieldValue>,
 )
 
 @Serializable

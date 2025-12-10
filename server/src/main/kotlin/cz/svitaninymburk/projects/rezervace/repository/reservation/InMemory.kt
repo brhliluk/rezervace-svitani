@@ -6,7 +6,6 @@ import kotlin.uuid.Uuid
 
 
 class InMemoryReservationRepository : ReservationRepository {
-
     private val reservations = ConcurrentHashMap<String, Reservation>()
 
     override suspend fun save(reservation: Reservation): Reservation {
@@ -17,6 +16,14 @@ class InMemoryReservationRepository : ReservationRepository {
     }
 
     override suspend fun findById(id: String): Reservation? = reservations[id]
+
+    override suspend fun findAwaitingPayment(vs: String): Reservation? {
+        return reservations.values.find { it.variableSymbol == vs && it.status == Reservation.Status.PENDING_PAYMENT }
+    }
+
+    override suspend fun hasPendingReservations(): Boolean {
+        return reservations.values.any { it.status == Reservation.Status.PENDING_PAYMENT }
+    }
 
     override suspend fun countSeats(eventId: String): Int {
         return reservations.values

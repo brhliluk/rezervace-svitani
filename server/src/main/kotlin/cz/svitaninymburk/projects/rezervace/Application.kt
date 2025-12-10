@@ -1,5 +1,6 @@
 package cz.svitaninymburk.projects.rezervace
 
+import cz.svitaninymburk.projects.rezervace.plugins.payment.startPaymentCheck
 import cz.svitaninymburk.projects.rezervace.plugins.routing.configureRouting
 import cz.svitaninymburk.projects.rezervace.plugins.security.configureSecurity
 import cz.svitaninymburk.projects.rezervace.plugins.serialization.configureSerialization
@@ -27,4 +28,6 @@ fun Application.module() {
     configureSecurity()
 
     configureRouting()
+
+    startPaymentCheck()
 }

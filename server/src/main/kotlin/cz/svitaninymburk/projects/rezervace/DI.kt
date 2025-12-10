@@ -17,10 +17,12 @@ import cz.svitaninymburk.projects.rezervace.repository.user.InMemoryUserReposito
 import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
 import cz.svitaninymburk.projects.rezervace.service.EventService
 import cz.svitaninymburk.projects.rezervace.service.GmailEmailService
+import cz.svitaninymburk.projects.rezervace.service.PaymentPairingService
 import cz.svitaninymburk.projects.rezervace.service.QrCodeService
 import cz.svitaninymburk.projects.rezervace.service.RefreshTokenService
 import cz.svitaninymburk.projects.rezervace.service.ReservationService
 import org.koin.dsl.module
+
 
 val appModule = module {
     // 1. Konfigurace (V reálu načítat z ENV)
@@ -47,7 +49,8 @@ val appModule = module {
     single { AuthService(get(), get(), get(),  get(), get(), get()) }
     single { RefreshTokenService(get(), get()) }
     single { EventService(get(), get()) }
-    single { GmailEmailService(get(), get(), get()) }
+    single { GmailEmailService(System.getenv("GMAIL_USERNAME") ?: "username", System.getenv("GMAIL_APP_PASSWORD") ?: "password", get()) }
     single { QrCodeService(accountNumber = System.getenv("BANK_ACCOUNT_NUMBER") ?: "123456-123456789/0100") }
     single { ReservationService(get(), get(), get(), get()) }
+    single { PaymentPairingService(get(), get(), get(), get(), System.getenv("FIO_TOKEN") ?: "fio-token") }
 }

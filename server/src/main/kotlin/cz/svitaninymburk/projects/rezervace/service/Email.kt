@@ -3,6 +3,7 @@ package cz.svitaninymburk.projects.rezervace.service
 import arrow.core.Either
 import arrow.core.raise.catch
 import arrow.core.raise.either
+import cz.svitaninymburk.projects.rezervace.bank.BankTransaction
 import cz.svitaninymburk.projects.rezervace.error.EmailError
 import cz.svitaninymburk.projects.rezervace.repository.event.EventInstanceRepository
 import cz.svitaninymburk.projects.rezervace.reservation.Reservation
@@ -21,17 +22,19 @@ import org.apache.commons.mail.EmailException
 import org.apache.commons.mail.HtmlEmail
 import javax.mail.util.ByteArrayDataSource
 
+
 interface EmailService {
     suspend fun sendReservationConfirmation(
         toEmail: String,
         reservation: Reservation,
         bankAccount: String,
         qrCodeImage: ByteArray, // QR kód jako pole bytů (PNG)
-    ): Either<EmailError.SendConfirmation, Unit>
+    ): Either<EmailError.SendReservationConfirmation, Unit>
 
     suspend fun sendCancellationNotice(toEmail: String, reservationId: String): Either<EmailError.SendCancellation, Unit>
 
-    // TODO: payment confirmation
+    suspend fun sendPaymentReceivedConfirmation(reservation: Reservation): Either<EmailError.SendReservationConfirmation, Unit>
+    suspend fun sendPaymentNotPaidInFull(reservation: Reservation, paymentInfo: BankTransaction, bankAccount: String, qrCodeImage: ByteArray): Either<EmailError.SendReservationConfirmation, Unit>
 }
 
 class GmailEmailService(
@@ -57,7 +60,7 @@ class GmailEmailService(
         reservation: Reservation,
         bankAccount: String,
         qrCodeImage: ByteArray,
-    ): Either<EmailError.SendConfirmation, Unit> = either { withContext(Dispatchers.IO) {
+    ): Either<EmailError.SendReservationConfirmation, Unit> = either { withContext(Dispatchers.IO) {
         val email = setupEmail()
         email.setAuthenticator(DefaultAuthenticator(username, appPassword))
 
@@ -91,7 +94,7 @@ class GmailEmailService(
         email.setTextMsg("Váš klient nepodporuje HTML emaily.")
 
         catch({ email.send() }) { e: EmailException ->
-            EmailError.SendConfirmationFailed(e.message ?: "Unknown error")
+            EmailError.SendReservationConfirmationFailed(e.message ?: "Unknown error")
         }
     } }
 
@@ -101,10 +104,61 @@ class GmailEmailService(
         val event = eventRepository.get(reservationId)
 
         email.subject = "Zrušení rezervace: ${event?.title}"
-        email.setHtmlMsg("Vaše rezervace na akci: ${event?.title} byla zrušena.")
+        email.setTextMsg("Vaše rezervace na akci: ${event?.title} byla zrušena.")
 
         catch({ email.send() }) { e: EmailException ->
             EmailError.SendCancellationFailed(e.message ?: "Unknown error")
         }
     } }
+
+    override suspend fun sendPaymentReceivedConfirmation(reservation: Reservation): Either<EmailError.SendReservationConfirmation, Unit> = either { withContext(Dispatchers.IO) {
+        val email = setupEmail()
+        email.addTo(reservation.contactEmail)
+        email.subject = "Potvrzení platby"
+
+        val event = eventRepository.get(reservation.eventInstanceId)
+
+        email.setTextMsg("Vaše rezervace na akci: ${event?.title} byla zaplacena, děkujeme!")
+
+        catch({ email.send() }) { e: EmailException ->
+            EmailError.SendPaymentConfirmationFailed(e.message ?: "Unknown error")
+        }
+    } }
+
+    override suspend fun sendPaymentNotPaidInFull(
+        reservation: Reservation,
+        paymentInfo: BankTransaction,
+        bankAccount: String,
+        qrCodeImage: ByteArray,
+    ): Either<EmailError.SendReservationConfirmation, Unit> = either { withContext(Dispatchers.IO) {
+        val email = setupEmail()
+        email.addTo(reservation.contactEmail)
+        email.subject = "Částečně zaplaceno"
+
+        val event = eventRepository.get(reservation.eventInstanceId)
+
+        val dataSource = ByteArrayDataSource(qrCodeImage, "image/png")
+        val cid = email.embed(dataSource, "qr-code-platba")
+
+        email.setHtmlMsg(buildString { appendHTML().html { body {
+            p { +"Vaše rezervace na akci: ${event?.title} byla zaplacena pouze částečně!" }
+            p { +"Zaznamenali jsme platbu v hodnotě: ${paymentInfo.amount}" }
+            p { +"Zbývá doplatit: ${reservation.totalPrice - paymentInfo.amount}" }
+            p { +"Platební údaje k doplacení platby: "}
+            img {
+                src = "cid:$cid"
+                alt = "QR Platba"
+                width = "200"
+                height = "200"
+            }
+            br
+            p { +"Nebo převodem na účet: $bankAccount, VS: ${reservation.variableSymbol}" }
+        } } })
+
+        catch({ email.send() }) { e: EmailException ->
+            EmailError.SendPaymentNotPaidInFullFailed(e.message ?: "Unknown error")
+        }
+    } }
+
+
 }

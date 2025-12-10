@@ -42,6 +42,7 @@ class ReservationService(
 
         val reservation = reservationRepo.save(
             Reservation(
+                id = Uuid.random().toString(),
                 eventInstanceId = request.eventInstanceId,
                 registeredUserId = userId,
                 seatCount = request.seatCount,
@@ -52,7 +53,7 @@ class ReservationService(
                 totalPrice = instance.price * request.seatCount,
                 status = Reservation.Status.PENDING_PAYMENT,
                 createdAt = Clock.System.now(),
-                id = Uuid.random().toString()
+                customValues = request.customValues,
             )
         )
 
