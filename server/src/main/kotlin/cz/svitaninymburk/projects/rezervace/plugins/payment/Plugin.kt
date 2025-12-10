@@ -4,6 +4,7 @@ import cz.svitaninymburk.projects.rezervace.repository.reservation.ReservationRe
 import cz.svitaninymburk.projects.rezervace.service.PaymentPairingService
 import cz.svitaninymburk.projects.rezervace.service.PaymentTrigger
 import io.ktor.server.application.Application
+import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -21,6 +22,8 @@ fun Application.startPaymentCheck() {
     val paymentPairingService: PaymentPairingService by inject()
     val paymentTrigger: PaymentTrigger by inject()
 
+    val logger = KtorSimpleLogger("PaymentCheck")
+
     launch(Dispatchers.IO) {
         delay(5.seconds)
 
@@ -31,7 +34,7 @@ fun Application.startPaymentCheck() {
             val now = TimeSource.Monotonic.markNow()
             if (now - lastCheckTime > minInterval) {
                 paymentPairingService.checkAndPairPayments()
-                    .onLeft { e -> println(e) }
+                    .onLeft { e -> logger.warn(e.toString()) }
                     .onRight { lastCheckTime = TimeSource.Monotonic.markNow() }
             }
 
@@ -41,7 +44,7 @@ fun Application.startPaymentCheck() {
                 if (hasPending) 5.minutes
                 else 1.hours
 
-            println("💤 Jdu spát na $sleepDuration (nebo dokud nezazvoní trigger)")
+            logger.debug("💤 Jdu spát na $sleepDuration (nebo dokud nezazvoní trigger)")
 
             withTimeoutOrNull(sleepDuration) {
                 paymentTrigger.waitForSignal()

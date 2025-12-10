@@ -16,7 +16,9 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.isSuccess
 import io.ktor.http.path
 import io.ktor.server.util.url
+import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.channels.Channel
+import kotlin.reflect.jvm.jvmName
 
 
 class PaymentPairingService(
@@ -26,8 +28,9 @@ class PaymentPairingService(
     private val qrCodeService: QrCodeService,
     private val fioToken: String
 ) {
+    private val logger = KtorSimpleLogger(this::class.jvmName)
     suspend fun checkAndPairPayments(): Either<PaymentPairingError.CheckAndPairPayments, Unit> = either {
-            println("🔄 Spouštím kontrolu plateb Fio banky...")
+            logger.info("🔄 Spouštím kontrolu plateb Fio banky...")
 
             val response = try {
                 httpClient.get(url {
@@ -43,7 +46,7 @@ class PaymentPairingService(
 
             val transactions = parseFioTransactions(response.body<FioResponse>())
 
-            println("📥 Staženo ${transactions.size} nových transakcí.")
+            logger.info("📥 Staženo ${transactions.size} nových transakcí.")
 
             transactions.forEach { processTransaction(it) }
         }
@@ -51,17 +54,17 @@ class PaymentPairingService(
     private suspend fun processTransaction(transaction: BankTransaction) {
         val vs = transaction.variableSymbol
         if (vs.isNullOrBlank()) {
-            println("⚠️ Transakce ${transaction.remoteId} nemá VS, nelze spárovat.")
+            logger.debug("⚠️ Transakce ${transaction.remoteId} nemá VS, nelze spárovat.")
             return
         }
 
         val reservation = reservationRepo.findAwaitingPayment(vs) ?: run {
-            println("❓ Platba s VS $vs nenašla žádnou čekající rezervaci.")
+            logger.warn("❓ Platba s VS $vs nenašla žádnou čekající rezervaci.")
             return
         }
 
         if ((transaction.amount < reservation.totalPrice) || (transaction.amount != reservation.unpaidAmount)) {
-            println("⚠️ Nedoplatek! VS $vs: Očekávaná čáska: ${reservation.unpaidAmount}, přišlo ${transaction.amount}.")
+            logger.warn("⚠️ Nedoplatek! VS $vs: Očekávaná čáska: ${reservation.unpaidAmount}, přišlo ${transaction.amount}.")
             emailService.sendPaymentNotPaidInFull(reservation, transaction, fioToken, qrCodeService.generateQrPaymentImage(reservation.copy(totalPrice = reservation.unpaidAmount - transaction.amount)))
             return
         }
@@ -75,7 +78,7 @@ class PaymentPairingService(
 
         emailService.sendPaymentReceivedConfirmation(paidReservation)
 
-        println("✅ Rezervace ${reservation.id} (VS $vs) úspěšně ZAPLACENA.")
+        logger.info("✅ Rezervace ${reservation.id} (VS $vs) úspěšně ZAPLACENA.")
     }
 }
 
