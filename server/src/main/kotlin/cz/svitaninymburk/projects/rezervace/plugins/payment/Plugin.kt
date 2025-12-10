@@ -31,8 +31,7 @@ fun Application.startPaymentCheck() {
         var lastCheckTime = TimeSource.Monotonic.markNow()
 
         while (isActive) {
-            val now = TimeSource.Monotonic.markNow()
-            if (now - lastCheckTime > minInterval) {
+            if (lastCheckTime.elapsedNow() > minInterval) {
                 paymentPairingService.checkAndPairPayments()
                     .onLeft { e -> logger.warn(e.toString()) }
                     .onRight { lastCheckTime = TimeSource.Monotonic.markNow() }
