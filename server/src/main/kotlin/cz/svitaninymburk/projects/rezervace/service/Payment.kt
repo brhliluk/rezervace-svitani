@@ -16,6 +16,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.isSuccess
 import io.ktor.http.path
 import io.ktor.server.util.url
+import kotlinx.coroutines.channels.Channel
 
 
 class PaymentPairingService(
@@ -75,5 +76,17 @@ class PaymentPairingService(
         emailService.sendPaymentReceivedConfirmation(paidReservation)
 
         println("✅ Rezervace ${reservation.id} (VS $vs) úspěšně ZAPLACENA.")
+    }
+}
+
+class PaymentTrigger {
+    private val channel = Channel<Unit>(Channel.CONFLATED)
+
+    fun notifyNewReservation() {
+        channel.trySend(Unit)
+    }
+
+    suspend fun waitForSignal() {
+        channel.receive()
     }
 }

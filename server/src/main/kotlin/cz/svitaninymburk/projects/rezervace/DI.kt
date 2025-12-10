@@ -18,6 +18,7 @@ import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
 import cz.svitaninymburk.projects.rezervace.service.EventService
 import cz.svitaninymburk.projects.rezervace.service.GmailEmailService
 import cz.svitaninymburk.projects.rezervace.service.PaymentPairingService
+import cz.svitaninymburk.projects.rezervace.service.PaymentTrigger
 import cz.svitaninymburk.projects.rezervace.service.QrCodeService
 import cz.svitaninymburk.projects.rezervace.service.RefreshTokenService
 import cz.svitaninymburk.projects.rezervace.service.ReservationService
@@ -35,6 +36,8 @@ val appModule = module {
         )
     }
 
+    single { PaymentTrigger() }
+
     single { GoogleAuthService(clientId = "vas-google-client-id") }
 
     single { JwtTokenService(get()) }
@@ -51,6 +54,6 @@ val appModule = module {
     single { EventService(get(), get()) }
     single { GmailEmailService(System.getenv("GMAIL_USERNAME") ?: "username", System.getenv("GMAIL_APP_PASSWORD") ?: "password", get()) }
     single { QrCodeService(accountNumber = System.getenv("BANK_ACCOUNT_NUMBER") ?: "123456-123456789/0100") }
-    single { ReservationService(get(), get(), get(), get()) }
+    single { ReservationService(get(), get(), get(), get(), get()) }
     single { PaymentPairingService(get(), get(), get(), get(), System.getenv("FIO_TOKEN") ?: "fio-token") }
 }

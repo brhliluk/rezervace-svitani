@@ -20,6 +20,7 @@ class ReservationService(
     private val reservationRepo: ReservationRepository,
     private val emailService: EmailService,
     private val qrCodeService: QrCodeService,
+    private val paymentTrigger: PaymentTrigger,
 ) {
     
     suspend fun createReservation(
@@ -65,6 +66,8 @@ class ReservationService(
             qrCodeService.accountNumber,
             qrCodeService.generateQrPaymentImage(reservation)
         )
+
+        paymentTrigger.notifyNewReservation()
 
         reservation
     }
