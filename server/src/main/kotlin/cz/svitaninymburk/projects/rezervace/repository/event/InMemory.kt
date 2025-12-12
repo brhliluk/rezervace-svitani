@@ -89,11 +89,11 @@ class InMemoryEventInstanceRepository : EventInstanceRepository {
         }?.occupiedSpots
     }
 
-    override suspend fun attemptToReserveSpots(instanceId: String, amount: Int, limit: Int): Boolean {
+    override suspend fun attemptToReserveSpots(instanceId: String, amount: Int): Boolean {
         var reservationSuccess = false
 
         instances.computeIfPresent(instanceId) { _, currentInstance ->
-            if (currentInstance.occupiedSpots + amount <= limit) {
+            if (currentInstance.occupiedSpots + amount <= currentInstance.occupiedSpots) {
                 reservationSuccess = true
                 currentInstance.copy(occupiedSpots = currentInstance.occupiedSpots + amount)
             } else {

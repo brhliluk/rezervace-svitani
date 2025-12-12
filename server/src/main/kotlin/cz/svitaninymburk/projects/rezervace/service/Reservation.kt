@@ -16,8 +16,8 @@ import kotlin.uuid.Uuid
 
 
 class ReservationService(
-    private val eventRepo: EventInstanceRepository,
-    private val reservationRepo: ReservationRepository,
+    private val eventRepository: EventInstanceRepository,
+    private val reservationRepository: ReservationRepository,
     private val emailService: EmailService,
     private val qrCodeService: QrCodeService,
     private val paymentTrigger: PaymentTrigger,
@@ -28,20 +28,20 @@ class ReservationService(
         userId: String?
     ): Either<ReservationError.CreateReservation, Reservation> = either {
 
-        val instance = ensureNotNull(eventRepo.get(request.eventInstanceId)) { ReservationError.EventNotFound }
+        val instance = ensureNotNull(eventRepository.get(request.eventInstanceId)) { ReservationError.EventNotFound }
 
         ensure(!instance.isCancelled) { ReservationError.EventCancelled }
-        ensure(instance.startDateTime > Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())) { ReservationError.EventAlreadyFinished }
+        ensure(instance.endDateTime > Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())) { ReservationError.EventAlreadyFinished }
+        ensure(instance.startDateTime > Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())) { ReservationError.EventAlreadyStarted }
 
-        val isReserved = eventRepo.attemptToReserveSpots(
+        val isReserved = eventRepository.attemptToReserveSpots(
             instanceId = instance.id,
             amount = request.seatCount,
-            limit = instance.capacity
         )
 
         ensure(isReserved) { ReservationError.CapacityExceeded }
 
-        val reservation = reservationRepo.save(
+        val reservation = reservationRepository.save(
             Reservation(
                 id = Uuid.random().toString(),
                 eventInstanceId = request.eventInstanceId,
@@ -58,7 +58,7 @@ class ReservationService(
             )
         )
 
-        eventRepo.incrementOccupiedSpots(instance.id, request.seatCount)
+        eventRepository.incrementOccupiedSpots(instance.id, request.seatCount)
 
         emailService.sendReservationConfirmation(
             reservation.contactEmail,
@@ -76,14 +76,14 @@ class ReservationService(
     suspend fun cancelReservation(
         reservationId: String,
     ): Either<ReservationError.CancelReservation, Boolean> = either {
-        val reservation = ensureNotNull(reservationRepo.findById(reservationId)) { ReservationError.EventNotFound }
+        val reservation = ensureNotNull(reservationRepository.findById(reservationId)) { ReservationError.EventNotFound }
 
         ensure(Clock.System.now() < reservation.createdAt) { ReservationError.EventAlreadyFinished }
 
         val cancelledReservation = reservation.copy(status = Reservation.Status.CANCELLED)
-        reservationRepo.save(cancelledReservation)
+        reservationRepository.save(cancelledReservation)
 
-        eventRepo.decrementOccupiedSpots(reservation.eventInstanceId, reservation.seatCount)
+        eventRepository.decrementOccupiedSpots(reservation.eventInstanceId, reservation.seatCount)
 
         emailService.sendCancellationNotice(cancelledReservation.contactEmail, reservationId)
             .mapLeft { ReservationError.FailedToSendCancellationEmail(it) }
@@ -92,12 +92,12 @@ class ReservationService(
 
     
     suspend fun getReservations(userId: String): Either<ReservationError.GetAll, List<Reservation>> = either {
-        val reservations = reservationRepo.getAll(userId)
+        val reservations = reservationRepository.getAll(userId)
         if (reservations.isEmpty()) return@either emptyList()
 
         val eventIds = reservations.map { it.eventInstanceId }.distinct()
 
-        val events = eventRepo.getAll(eventIds).associateBy { it.id }
+        val events = eventRepository.getAll(eventIds).associateBy { it.id }
 
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 

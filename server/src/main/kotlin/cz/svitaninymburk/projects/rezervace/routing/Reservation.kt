@@ -26,6 +26,7 @@ fun Route.reservationRoutes(reservationService: ReservationService) {
                     ReservationError.EventNotFound -> HttpStatusCode.NotFound
                     ReservationError.CapacityExceeded -> HttpStatusCode.Conflict
                     ReservationError.EventAlreadyFinished -> HttpStatusCode.BadRequest
+                    ReservationError.EventAlreadyStarted -> HttpStatusCode.BadRequest
                     ReservationError.EventCancelled -> HttpStatusCode.NotAcceptable
                 }
                 call.respond(status, error.localizedMessage)
@@ -38,7 +39,7 @@ fun Route.reservationRoutes(reservationService: ReservationService) {
 
         reservationService.cancelReservation(id)
             .onLeft { error -> when (error) {
-                is ReservationError.EventAlreadyFinished -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
+                is ReservationError.EventAlreadyFinished, is ReservationError.EventAlreadyStarted -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
                 is ReservationError.EventNotFound -> call.respond(HttpStatusCode.NotFound, error.localizedMessage)
                 // TODO: error/success reason
                 is ReservationError.FailedToSendCancellationEmail -> call.respond(HttpStatusCode.OK, "Rezervace zrušena, ale odeslání emailu se nezdařilo")

@@ -27,5 +27,5 @@ interface EventInstanceRepository {
     suspend fun incrementOccupiedSpots(instanceId: String, amount: Int): Int?
     suspend fun decrementOccupiedSpots(instanceId: String, amount: Int): Int?
 
-    suspend fun attemptToReserveSpots(instanceId: String, amount: Int, limit: Int): Boolean
+    suspend fun attemptToReserveSpots(instanceId: String, amount: Int): Boolean
 }
