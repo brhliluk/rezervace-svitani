@@ -39,6 +39,10 @@ kotlin {
             implementation(libs.kotlin.test)
         }
     }
+
+    compilerOptions {
+        optIn.addAll("androidx.compose.material3.ExperimentalMaterial3Api")
+    }
 }
 
 
