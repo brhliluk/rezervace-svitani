@@ -1,6 +1,9 @@
 package cz.svitaninymburk.projects.rezervace.ui
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +17,10 @@ import rezervace.composeapp.generated.resources.Svitani_small
     MediumTopAppBar(
         title = { Text(title) },
         navigationIcon = { Icon(vectorResource(Res.drawable.Svitani_small), contentDescription = null) },
-        actions = { TODO("hiding navigation + user") },
+        actions = {
+            IconButton({ /* TODO: Open account/sign/log in */ }) {
+                Icon(Icons.Filled.AccountCircle, "Account")
+            }
+        },
     )
 }
