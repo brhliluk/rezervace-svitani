@@ -15,6 +15,7 @@ import cz.svitaninymburk.projects.rezervace.repository.reservation.InMemoryReser
 import cz.svitaninymburk.projects.rezervace.repository.reservation.ReservationRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.InMemoryUserRepository
 import cz.svitaninymburk.projects.rezervace.repository.user.UserRepository
+import cz.svitaninymburk.projects.rezervace.service.EmailService
 import cz.svitaninymburk.projects.rezervace.service.EventService
 import cz.svitaninymburk.projects.rezervace.service.GmailEmailService
 import cz.svitaninymburk.projects.rezervace.service.PaymentPairingService
@@ -22,6 +23,8 @@ import cz.svitaninymburk.projects.rezervace.service.PaymentTrigger
 import cz.svitaninymburk.projects.rezervace.service.QrCodeService
 import cz.svitaninymburk.projects.rezervace.service.RefreshTokenService
 import cz.svitaninymburk.projects.rezervace.service.ReservationService
+import cz.svitaninymburk.projects.rezervace.service.UserService
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 
@@ -52,8 +55,9 @@ val appModule = module {
     single { AuthService(get(), get(), get(),  get(), get(), get()) }
     single { RefreshTokenService(get(), get()) }
     single { EventService(get(), get()) }
-    single { GmailEmailService(System.getenv("GMAIL_USERNAME") ?: "username", System.getenv("GMAIL_APP_PASSWORD") ?: "password", get()) }
+    single { GmailEmailService(System.getenv("GMAIL_USERNAME") ?: "username", System.getenv("GMAIL_APP_PASSWORD") ?: "password", get()) } bind EmailService::class
     single { QrCodeService(accountNumber = System.getenv("BANK_ACCOUNT_NUMBER") ?: "123456-123456789/0100") }
     single { ReservationService(get(), get(), get(), get(), get()) }
     single { PaymentPairingService(get(), get(), get(), get(), System.getenv("FIO_TOKEN") ?: "fio-token") }
+    single { UserService(get()) }
 }
