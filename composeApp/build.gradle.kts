@@ -35,6 +35,10 @@ kotlin {
             implementation(libs.androidx.material3.adaptive.navigation3)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlin.immutable)
+
             implementation(projects.shared)
         }
         commonTest.dependencies {

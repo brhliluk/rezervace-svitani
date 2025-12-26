@@ -15,6 +15,7 @@ import rezervace.composeapp.generated.resources.Res
 import rezervace.composeapp.generated.resources.Svitani_small
 import rezervace.composeapp.generated.resources.log_in
 
+
 @Composable fun Toolbar(
     title: String,
     user: User? = null,

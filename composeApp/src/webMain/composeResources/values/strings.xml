@@ -1,3 +1,7 @@
 <resources>
     <string name="log_in">Log in</string>
+    <string name="reserve">Reserve</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="list_view">List-view</string>
+    <string name="calendar_view">Calendar-view</string>
 </resources>
